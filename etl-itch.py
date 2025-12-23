@@ -12,16 +12,20 @@ logger = None
 
 all_tags = []
 
+def get_source(driver, url):
+    driver.open(url)
+    wait_time = random.random() * 3 + 0.75
+    driver.sleep(wait_time)
+    src = driver.get_page_source()
+    return src
+
 def extract_game_uris(driver, tag):
     n = 0
     game_uris = []
     while True:
         n += 1
         url = f"https://itch.io/games/{tag}?page={n}&format=json"
-        driver.open(url)
-        wait_time = random.random() * 3 + 0.75
-        driver.sleep(wait_time)
-        src = driver.get_page_source()
+        src = get_source(driver, url)
         uris = soup_game_uris(src)
         game_uris.extend(uris)
         if len(uris) < 36:
