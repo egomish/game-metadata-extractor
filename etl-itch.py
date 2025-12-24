@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import json
 import random
 from pathlib import Path
+import csv
 
 
 TEST = True
@@ -68,7 +69,7 @@ def soup_game_metadata(page_source, uri):
     metadata = {}
     metadata["title"] = title
     metadata["uri"] = uri
-    metadata["tags"] = tags
+    metadata["tags"] = ";".join(tags)
     return metadata
 
 
@@ -117,6 +118,16 @@ with SB(headed=True, uc=True) as sb:
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
         all_metadata.append(metadata)
+
+
+outfile = Path("itch-metadata.csv")
+print("LOG: Creating file", outfile, "to output metadata for", len(all_metadata), "games...", file=logger)
+headers = ["title", "uri", "tags"]
+
+with open(outfile, "w", newline="") as dataout:
+    fout = csv.DictWriter(dataout, fieldnames=headers, dialect="unix", quoting=csv.QUOTE_MINIMAL)
+    fout.writeheader()
+    fout.writerows(all_metadata)
 
 if logger:
     logger.close()
