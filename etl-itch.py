@@ -11,6 +11,7 @@ TEST = True
 logger = None
 
 all_tags = []
+all_uris = set()
 
 def get_source(driver, url):
     driver.open(url)
@@ -88,6 +89,7 @@ with SB(headed=True, uc=True) as sb:
             with open(fname, "w") as fout:
                 for item in uris:
                     print(item, file=fout)
+        all_uris.update(uris)
 
 if logger:
     logger.close()
