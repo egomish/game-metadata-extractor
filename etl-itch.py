@@ -60,8 +60,14 @@ if TEST:
     print("---- Fewer items will be extracted to reduce server load.", file=logger)
     print("---- Local data in test/ directory will be used, if present.", file=logger)
 
-with open(sys.argv[1]) as fin:
+tags_file = sys.argv[1]
+
+print("LOG: Reading", tags_file, "for tags to find on itch.io...", file=logger)
+
+with open(tags_file) as fin:
     all_tags = fin.read().splitlines()
+
+print("LOG: Starting webdriver...", file=logger)
 
 with SB(headed=True, uc=True) as sb:
     for elem in all_tags:
