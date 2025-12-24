@@ -69,21 +69,19 @@ with SB(headed=True, uc=True) as sb:
 
         uris = []
 
-        if TEST:
-            fname = "test" / fname
-            if fname.exists():
-                print("LOG: Local copy", fname, "found.", file=logger)
-                with open(fname) as fin:
-                    uris = fin.read().splitlines()
-                continue
+        testname = "test" / fname
+        if TEST and testname.exists():
+            print("LOG: Local copy", testname, "found.", file=logger)
+            with open(testname) as fin:
+                uris = fin.read().splitlines()
+        else:
+            print("LOG: Extracting URIs for", elem, "games...", file=logger)
+            uris = extract_game_uris(sb, elem)
+            print("LOG: Extracted", len(uris), "URIs.", file=logger)
 
-        print("LOG: Extracting URIs for", elem, "games...", file=logger)
-        uris = extract_game_uris(sb, elem)
-        print("LOG: Extracted", len(uris), "URIs.", file=logger)
-
-        with open(fname, "w") as fout:
-            for item in uris:
-                print(item, file=fout)
+            with open(fname, "w") as fout:
+                for item in uris:
+                    print(item, file=fout)
 
 if logger:
     logger.close()
