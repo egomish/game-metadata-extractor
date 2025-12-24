@@ -1,3 +1,4 @@
+import sys
 from seleniumbase import SB
 from bs4 import BeautifulSoup
 import json
@@ -9,10 +10,7 @@ TEST = True
 
 logger = None
 
-all_tags = [
-    "tag-desktop-pet",
-    "tag-pastel"
-]
+all_tags = []
 
 def extract_game_uris(driver, tag):
     n = 0
@@ -50,10 +48,16 @@ def soup_game_uris(page_source):
 
 # main
 
+if len(sys.argv) < 2:
+    exit("usage: etl-itch.py tags_file")
+
 if TEST:
     print("LOG: TEST mode is enabled:", file=logger)
     print("---- Fewer items will be extracted to reduce server load.", file=logger)
     print("---- Local data in test/ directory will be used, if present.", file=logger)
+
+with open(sys.argv[1]) as fin:
+    all_tags = fin.read().splitlines()
 
 with SB(headed=True, uc=True) as sb:
     for elem in all_tags:
