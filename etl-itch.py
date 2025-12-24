@@ -12,6 +12,7 @@ logger = None
 
 all_tags = []
 all_uris = set()
+all_metadata = []
 
 def get_source(driver, url):
     driver.open(url)
@@ -49,6 +50,26 @@ def soup_game_uris(page_source):
     except Exception as err:
         print("ERR: Exception occurred while souping game URIs.", file=logger)
         return []
+
+def soup_game_metadata(page_source, uri):
+    soup = BeautifulSoup(page_source, features="lxml")
+    tags = []
+    hrefs = soup.find_all(href=True)
+    for elem in hrefs:
+        if elem["href"].startswith("https://itch.io/games/tag-"):
+            tags.append(elem["href"].split("/")[-1])
+        gametitle = soup.find(class_="game_title")
+    title = None
+    try:
+        title = gametitle.text
+    except:
+        print("ERR: An exception occurred while souping", uri, "for its title.", file=logger)
+        title = None
+    metadata = {}
+    metadata["title"] = title
+    metadata["uri"] = uri
+    metadata["tags"] = tags
+    return metadata
 
 
 # main
@@ -90,6 +111,12 @@ with SB(headed=True, uc=True) as sb:
                 for item in uris:
                     print(item, file=fout)
         all_uris.update(uris)
+
+    print("LOG: Extracting metadata for", len(all_uris), "games...", file=logger)
+    for elem in all_uris:
+        src = get_source(sb, elem)
+        metadata = soup_game_metadata(src, elem)
+        all_metadata.append(metadata)
 
 if logger:
     logger.close()
