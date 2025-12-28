@@ -54,23 +54,28 @@ def soup_game_uris(page_source):
 
 def soup_game_metadata(page_source, uri):
     soup = BeautifulSoup(page_source, features="lxml")
+    metadata = {}
+    metadata["title"] = soup_game_title(soup)
+    metadata["uri"] = uri
+    metadata["tags"] = ";".join(soup_game_tags(soup))
+    return metadata
+
+def soup_game_tags(soup):
     tags = []
     hrefs = soup.find_all(href=True)
     for elem in hrefs:
         if elem["href"].startswith("https://itch.io/games/tag-"):
             tags.append(elem["href"].split("/")[-1])
-        gametitle = soup.find(class_="game_title")
-    title = None
+    return tags
+
+def soup_game_title(soup):
+    gametitle = soup.find(class_="game_title")
     try:
         title = gametitle.text
     except:
-        print("ERR: An exception occurred while souping", uri, "for its title.", file=logger)
+        print("ERR: Failed to soup for title.", file=logger)
         title = None
-    metadata = {}
-    metadata["title"] = title
-    metadata["uri"] = uri
-    metadata["tags"] = ";".join(tags)
-    return metadata
+    return title
 
 
 # main
