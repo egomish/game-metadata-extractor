@@ -139,6 +139,8 @@ with SB(headed=True, uc=True) as sb:
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
         all_metadata.append(metadata)
+        if TEST:
+            break
 
 
 outfile = Path("data/itch-metadata.csv")
