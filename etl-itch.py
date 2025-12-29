@@ -5,6 +5,7 @@ import json
 import random
 from pathlib import Path
 import csv
+import re
 
 
 TEST = True
@@ -58,6 +59,7 @@ def soup_game_metadata(page_source, uri):
     metadata["title"] = soup_game_title(soup)
     metadata["uri"] = uri
     metadata["tags"] = ";".join(soup_game_tags(soup))
+    metadata["author"] = ";".join(soup_game_authors(soup))
     return metadata
 
 def soup_game_tags(soup):
@@ -76,6 +78,17 @@ def soup_game_title(soup):
         print("ERR: Failed to soup for title.", file=logger)
         title = None
     return title
+
+def soup_game_authors(soup):
+    authors = []
+    try:
+        hrefs = soup.find(string=re.compile("Author*")).parent.parent.find_all("a")
+        for elem in hrefs:
+            authors.append(elem["href"].replace("https://", "").split(".")[0])
+    except:
+        print("ERR: Failed to soup for authors.", file=logger)
+        authors = []
+    return authors
 
 
 # main
@@ -127,7 +140,7 @@ with SB(headed=True, uc=True) as sb:
 
 outfile = Path("itch-metadata.csv")
 print("LOG: Creating file", outfile, "to output metadata for", len(all_metadata), "games...", file=logger)
-headers = ["title", "uri", "tags"]
+headers = ["title", "uri", "author", "tags"]
 
 with open(outfile, "w", newline="") as dataout:
     fout = csv.DictWriter(dataout, fieldnames=headers, dialect="unix", quoting=csv.QUOTE_MINIMAL)
