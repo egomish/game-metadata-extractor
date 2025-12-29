@@ -135,7 +135,22 @@ with SB(headed=True, uc=True) as sb:
 
     print("LOG: Extracting metadata for", len(all_uris), "games...", file=logger)
 
-    for elem in all_uris:
+    uris_to_extract = []
+    cached_uris = set()
+    fname = Path("data/itch-metadata.csv")
+    if use_cache and fname.exists():
+        print("---- Local copy", fname, "found.", file=logger)
+        with open(fname) as fin:
+            reader = csv.DictReader(fin)
+            for elem in reader:
+                all_metadata.append(elem)
+                cached_uris.add(elem["uri"])
+        uris_to_extract = all_uris.difference(cached_uris)
+        print("---- Using local data for", len(cached_uris), "games.", file=logger)
+    else:
+        uris_to_extract = all_uris
+
+    for elem in uris_to_extract:
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
         all_metadata.append(metadata)
