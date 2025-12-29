@@ -9,6 +9,7 @@ import re
 
 
 TEST = True
+use_cache = True
 
 logger = None
 
@@ -99,7 +100,9 @@ if len(sys.argv) < 2:
 if TEST:
     print("LOG: TEST mode is enabled:", file=logger)
     print("---- Fewer items will be extracted to reduce server load.", file=logger)
-    print("---- Local data in test/ directory will be used, if present.", file=logger)
+if use_cache:
+    print("LOG: Cache mode is enabled:", file=logger)
+    print("---- Local data will be used, if present.", file=logger)
 
 tags_file = sys.argv[1]
 
@@ -112,14 +115,13 @@ print("LOG: Starting webdriver...", file=logger)
 
 with SB(headed=True, uc=True) as sb:
     for elem in all_tags:
-        fname = Path(elem + ".txt")
+        fname = Path("data") / Path(elem + ".txt")
 
         uris = []
 
-        testname = "test" / fname
-        if TEST and testname.exists():
-            print("LOG: Local copy", testname, "found.", file=logger)
-            with open(testname) as fin:
+        if use_cache and fname.exists():
+            print("LOG: Local copy", fname, "found.", file=logger)
+            with open(fname) as fin:
                 uris = fin.read().splitlines()
         else:
             print("LOG: Extracting URIs for", elem, "games...", file=logger)
@@ -132,6 +134,7 @@ with SB(headed=True, uc=True) as sb:
         all_uris.update(uris)
 
     print("LOG: Extracting metadata for", len(all_uris), "games...", file=logger)
+
     for elem in all_uris:
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
