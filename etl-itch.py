@@ -98,11 +98,9 @@ if len(sys.argv) < 2:
     exit("usage: etl-itch.py tags_file")
 
 if TEST:
-    print("LOG: TEST mode is enabled:", file=logger)
-    print("---- Fewer items will be extracted to reduce server load.", file=logger)
+    print("LOG: TEST mode is enabled: Fewer items will be extracted to reduce server load.", file=logger)
 if use_cache:
-    print("LOG: Cache mode is enabled:", file=logger)
-    print("---- Local data will be used, if present.", file=logger)
+    print("LOG: Cache mode is enabled: Local data will be used, if present.", file=logger)
 
 tags_file = sys.argv[1]
 
@@ -120,7 +118,7 @@ with SB(headed=True, uc=True) as sb:
         uris = []
 
         if use_cache and fname.exists():
-            print("LOG: Local copy", fname, "found.", file=logger)
+            print("LOG: Local data", fname, "found.", file=logger)
             with open(fname) as fin:
                 uris = fin.read().splitlines()
         else:
@@ -139,18 +137,18 @@ with SB(headed=True, uc=True) as sb:
     cached_uris = set()
     fname = Path("data/itch-metadata.csv")
     if use_cache and fname.exists():
-        print("---- Local copy", fname, "found.", file=logger)
         with open(fname) as fin:
             reader = csv.DictReader(fin)
             for elem in reader:
                 all_metadata.append(elem)
                 cached_uris.add(elem["uri"])
         uris_to_extract = all_uris.difference(cached_uris)
-        print("---- Using local data for", len(cached_uris), "games.", file=logger)
+        print("LOG: Local data used for", len(cached_uris), "games. Extracting remaining", len(uris_to_extract), "games...", file=logger)
     else:
         uris_to_extract = all_uris
 
     for elem in uris_to_extract:
+        print("LOG: Extracting", elem, file=logger)
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
         all_metadata.append(metadata)
