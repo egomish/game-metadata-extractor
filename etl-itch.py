@@ -141,7 +141,7 @@ with SB(headed=True, uc=True) as sb:
         all_metadata.append(metadata)
 
 
-outfile = Path("itch-metadata.csv")
+outfile = Path("data/itch-metadata.csv")
 print("LOG: Creating file", outfile, "to output metadata for", len(all_metadata), "games...", file=logger)
 headers = ["title", "uri", "author", "tags"]
 
