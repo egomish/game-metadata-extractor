@@ -91,8 +91,8 @@ def soup_game_authors(soup):
         authors = []
     return authors
 
-def output_to_file(rows):
-    outfile = Path("data/itch-metadata.csv")
+def output_to_file(rows, output_file):
+    outfile = Path(output_file)
     print("LOG: Creating file", outfile, "to output metadata for", len(rows), "games...", file=logger)
     headers = ["title", "uri", "author", "tags"]
 
@@ -104,8 +104,8 @@ def output_to_file(rows):
 
 # main
 
-if len(sys.argv) < 2:
-    exit("usage: etl-itch.py tags_file")
+if len(sys.argv) < 3:
+    exit("usage: etl-itch.py tags_file output_file")
 
 if TEST:
     print("LOG: TEST mode is enabled: Fewer items will be extracted to reduce server load.", file=logger)
@@ -113,6 +113,7 @@ if use_cache:
     print("LOG: Cache mode is enabled: Local data will be used, if present.", file=logger)
 
 tags_file = sys.argv[1]
+output_file = sys.argv[2]
 
 print("LOG: Reading", tags_file, "for tags to find on itch.io...", file=logger)
 
@@ -145,7 +146,7 @@ with SB(headed=True, uc=True) as sb:
 
     uris_to_extract = []
     cached_uris = set()
-    fname = Path("data/itch-metadata.csv")
+    fname = Path(output_file)
     if use_cache and fname.exists():
         with open(fname) as fin:
             reader = csv.DictReader(fin)
@@ -165,7 +166,7 @@ with SB(headed=True, uc=True) as sb:
         if TEST:
             break
 
-    output_to_file(all_metadata)
+    output_to_file(all_metadata, output_file)
 
 if logger:
     logger.close()
