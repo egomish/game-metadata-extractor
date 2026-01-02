@@ -93,12 +93,17 @@ def soup_game_authors(soup):
 
 def output_to_file(rows, output_file):
     outfile = Path(output_file)
-    print("LOG: Creating file", outfile, "to output metadata for", len(rows), "games...", file=logger)
+    print("LOG: Saving metadata to", outfile, "for the next", len(rows), "games...", file=logger)
     headers = ["title", "uri", "author", "tags"]
 
-    with open(outfile, "w", newline="") as dataout:
+    if outfile.exists():
+        preexisting_file = True
+    else:
+        preexisting_file = False
+    with open(outfile, "a", newline="") as dataout:
         fout = csv.DictWriter(dataout, fieldnames=headers, dialect="unix", quoting=csv.QUOTE_MINIMAL)
-        fout.writeheader()
+        if not preexisting_file:
+            fout.writeheader()
         fout.writerows(rows)
 
 
@@ -158,7 +163,13 @@ with SB(headed=True, uc=True) as sb:
     else:
         uris_to_extract = all_uris
 
-    for elem in uris_to_extract:
+    start_i = len(all_metadata)
+    checkpoint = 7
+    for i, elem in enumerate(uris_to_extract):
+        if i % checkpoint == 0:
+            if i != 0:
+                output_to_file(all_metadata[start_i:], output_file)
+                start_i += checkpoint
         print("LOG: Extracting", elem, file=logger)
         src = get_source(sb, elem)
         metadata = soup_game_metadata(src, elem)
@@ -166,7 +177,7 @@ with SB(headed=True, uc=True) as sb:
         if TEST:
             break
 
-    output_to_file(all_metadata, output_file)
+    output_to_file(all_metadata[start_i:], output_file)
 
 if logger:
     logger.close()
