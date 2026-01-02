@@ -91,6 +91,16 @@ def soup_game_authors(soup):
         authors = []
     return authors
 
+def output_to_file(rows):
+    outfile = Path("data/itch-metadata.csv")
+    print("LOG: Creating file", outfile, "to output metadata for", len(rows), "games...", file=logger)
+    headers = ["title", "uri", "author", "tags"]
+
+    with open(outfile, "w", newline="") as dataout:
+        fout = csv.DictWriter(dataout, fieldnames=headers, dialect="unix", quoting=csv.QUOTE_MINIMAL)
+        fout.writeheader()
+        fout.writerows(rows)
+
 
 # main
 
@@ -155,15 +165,7 @@ with SB(headed=True, uc=True) as sb:
         if TEST:
             break
 
-
-outfile = Path("data/itch-metadata.csv")
-print("LOG: Creating file", outfile, "to output metadata for", len(all_metadata), "games...", file=logger)
-headers = ["title", "uri", "author", "tags"]
-
-with open(outfile, "w", newline="") as dataout:
-    fout = csv.DictWriter(dataout, fieldnames=headers, dialect="unix", quoting=csv.QUOTE_MINIMAL)
-    fout.writeheader()
-    fout.writerows(all_metadata)
+    output_to_file(all_metadata)
 
 if logger:
     logger.close()
