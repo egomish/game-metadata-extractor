@@ -61,6 +61,9 @@ def soup_game_metadata(page_source, uri):
     metadata["uri"] = uri
     metadata["tags"] = ";".join(soup_game_tags(soup))
     metadata["author"] = ";".join(soup_game_authors(soup))
+    metadata["status"] = soup_game_release_status(soup)
+    metadata["platform"] = ";".join(soup_game_platform(soup))
+
     return metadata
 
 def soup_game_tags(soup):
@@ -91,10 +94,32 @@ def soup_game_authors(soup):
         authors = []
     return authors
 
+def soup_game_release_status(soup):
+    try:
+        str = soup.find(string="Status")
+        node = str.parent.parent.find(href=True)
+        status = node.text
+    except:
+        print("ERR: Failed to soup for release status.", file=logger)
+        status = None
+    return status
+
+def soup_game_platform(soup):
+    platforms = []
+    try:
+        str = soup.find(string="Platforms")
+        node = str.parent.parent.find_all(href=True)
+        for elem in node:
+            platforms.append(elem.text)
+    except:
+        print("ERR: Failed to soup for platforms.", file=logger)
+        platforms = []
+    return platforms
+
 def output_to_file(rows, output_file):
     outfile = Path(output_file)
     print("LOG: Saving metadata to", outfile, "for the next", len(rows), "games...", file=logger)
-    headers = ["title", "uri", "author", "tags"]
+    headers = ["title", "uri", "author", "status", "platform", "tags"]
 
     if outfile.exists():
         preexisting_file = True
