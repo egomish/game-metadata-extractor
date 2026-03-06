@@ -190,7 +190,7 @@ with SB(headed=True, uc=True) as sb:
         uris_to_extract = all_uris
 
     start_i = len(all_metadata)
-    checkpoint = 7
+    checkpoint = 20
     for i, elem in enumerate(uris_to_extract):
         if i % checkpoint == 0:
             if i != 0:
