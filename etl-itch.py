@@ -6,6 +6,7 @@ import random
 from pathlib import Path
 import csv
 import re
+import datetime
 
 
 TEST = True
@@ -138,10 +139,15 @@ def output_to_file(rows, output_file):
 if len(sys.argv) < 3:
     exit("usage: etl-itch.py tags_file output_file")
 
+print("================", file=logger)
+print("LOG: Starting", datetime.datetime.now().strftime("%c"), "(local time).", file=logger)
+
 if TEST:
     print("LOG: TEST mode is enabled: Fewer items will be extracted to reduce server load.", file=logger)
 if use_cache:
     print("LOG: Cache mode is enabled: Local data will be used, if present.", file=logger)
+
+print("----------------", file=logger)
 
 tags_file = sys.argv[1]
 output_file = sys.argv[2]
