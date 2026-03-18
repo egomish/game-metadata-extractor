@@ -11,8 +11,8 @@ import re
 TEST = True
 use_cache = True
 
-logger = open("log.txt", "w")
-logger = None  # uncomment this line to redirect output to STDOUT
+logger = open("log.txt", "a")
+# logger = None  # uncomment this line to redirect output to STDOUT
 
 all_tags = []
 all_uris = set()
