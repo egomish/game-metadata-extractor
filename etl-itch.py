@@ -65,6 +65,8 @@ def soup_game_metadata(page_source, uri):
     metadata["author"] = ";".join(soup_game_authors(soup))
     metadata["status"] = soup_game_release_status(soup)
     metadata["platform"] = ";".join(soup_game_platform(soup))
+    metadata["ratingCount"] = soup_game_rating_count(soup)
+    metadata["ratingValue"] = soup_game_rating_value(soup)
 
     return metadata
 
@@ -118,10 +120,22 @@ def soup_game_platform(soup):
         platforms = []
     return platforms
 
+def soup_game_rating_count(soup):
+    count = soup.find(class_="rating_count")
+    if count:
+        count = count["content"]
+    return count
+
+def soup_game_rating_value(soup):
+    value = soup.find(class_="star_value")
+    if value:
+        value = value["content"]
+    return value
+
 def output_to_file(rows, output_file):
     outfile = Path(output_file)
     print("LOG: Saving metadata to", outfile, "for the next", len(rows), "games...", file=logger)
-    headers = ["title", "uri", "author", "status", "platform", "tags"]
+    headers = ["title", "uri", "author", "status", "platform", "tags", "ratingCount", "ratingValue"]
 
     if outfile.exists():
         preexisting_file = True
